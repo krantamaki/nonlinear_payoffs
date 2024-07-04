@@ -3,41 +3,59 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.append("..")
+from option import CallOption, PutOption
 from strategy import Condor, CondorChain, StrategyCollection
 
 
 def main():
 
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(8, 4))
 
-    mag = 0.1
+    long_call = CallOption(110, "long", 1, premium = 10)
+    long_call.plot((80, 120), fig=fig, label="Long Call ($K = 110$)")
+    short_call = CallOption(90, "short", 1, premium = 10)
+    short_call.plot((80, 120), fig=fig, label="Short Call ($K = 90$)")
+    long_put = PutOption(105, "long", 1, premium = 10)
+    long_put.plot((80, 120), fig=fig, label="Long Put ($K = 105$)")
+    short_put = PutOption(95, "short", 1, premium = 10)
+    short_put.plot((80, 120), fig=fig, label="Short Put ($K = 95$)")
+
+    plt.tight_layout()
+    plt.legend()
+    fig.savefig("option_tmp.pdf")
+
+
+    fig = plt.figure(figsize=(8, 4))
+
     alpha = 0.3
     fmt = '--'
 
-    condor_chain0 = CondorChain(25, 5, 100, mag * 2, (0, 200))
-    condor_chain0.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
+    _lambda = 2 * np.pi
+    _alpha = np.pi / 2
+    eval_range = (-4 * np.pi, 4 * np.pi)
 
-    condor_chain1 = CondorChain(20, 10, 100, mag, (0, 200))
-    condor_chain1.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
+    n = 100
+    condor_chains = []
+    mag_sum = 0
 
-    condor_chain1_5 = CondorChain(15, 15, 100, mag/1.5, (0, 200))
-    condor_chain1_5.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
+    for i in range(1, n + 1):
+        diff = (i * _lambda) / (2 * n)
+        mag = np.sin(diff / 2) * i / n
+        mag_sum += mag
+        tmp_chain = CondorChain(_lambda, _alpha, diff, (1 / diff) * mag, eval_range)
+        tmp_chain.plot(eval_range, fig=fig, alpha=alpha, fmt=fmt)
+        condor_chains.append(tmp_chain)
 
-    condor_chain2 = CondorChain(10, 20, 100, mag/2, (0, 200))
-    condor_chain2.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
+    condor_strategy = StrategyCollection(condor_chains, magnitude=1 / mag_sum)
+    condor_strategy.plot(eval_range, fig=fig, label="Sine approximation")
 
-    condor_chain2_5 = CondorChain(5, 25, 100, mag/2.5, (0, 200))
-    condor_chain2_5.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
-
-    condor_chain3 = CondorChain(0, 30, 100, mag/3, (0, 200))
-    condor_chain3.plot((0, 200), fig=fig, alpha=alpha, format=fmt)
-
-    condor_chains = StrategyCollection([condor_chain0, condor_chain1, condor_chain1_5, condor_chain2, condor_chain2_5,
-                                        condor_chain3], magnitude=1/6)  # , condor_chain4, condor_chain5])
-    condor_chains.plot((0, 200), fig=fig)
+    xx = np.linspace(eval_range[0], eval_range[1], 1000)
+    yy_sin = (1 / 2) * np.sin(xx) + (1 / 2)
+    plt.plot(xx, yy_sin, '--', label="Sine exact")
 
     plt.tight_layout()
-    fig.savefig("tmp.png")
+    plt.legend()
+    fig.savefig("condor_tmp.pdf")
 
 
 if __name__ == "__main__":
