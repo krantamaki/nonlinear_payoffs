@@ -69,13 +69,6 @@ class CondorChain(Strategy):
     def __init__(self, _lambda: float, _alpha: float, _delta: float,
                  position_size: float, eval_range: (float, float)) -> None:
 
-        self.__lambda = _lambda
-        self.__alpha = _alpha
-        self.__delta = _delta
-        self.__inner_width = _lambda / 2 - _delta
-        self.__position_size = position_size
-        self.__eval_range = eval_range
-
         inner_diff = _lambda / 2 - _delta
         shift = inner_diff / 2 + _delta
 
@@ -83,21 +76,6 @@ class CondorChain(Strategy):
                   [i for i in range(int((eval_range[1] - _alpha) / _lambda) + 1)]
 
         self.condors = [Condor(_alpha - shift + i * _lambda, _delta, _alpha + shift + i * _lambda, position_size) for i in i_range]
-
-        """
-        outer_bound = anchor_strike + inner_diff / 2 + side_diff + inner_diff
-        while eval_range[1] > outer_bound:
-            new_outer_bound = outer_bound + inner_diff + 2 * side_diff
-            self.condors.append(Condor(outer_bound, side_diff, new_outer_bound, position_size))
-            outer_bound = new_outer_bound + inner_diff
-
-        outer_bound = anchor_strike - inner_diff / 2 - side_diff - inner_diff
-        while eval_range[0] < outer_bound:
-            new_outer_bound = outer_bound - inner_diff - 2 * side_diff
-            self.condors.insert(0, Condor(new_outer_bound, side_diff, outer_bound, position_size))
-            outer_bound = new_outer_bound - inner_diff
-        """
-        # print(len(self.condors))
 
     def __call__(self, underlying_value: float) -> float:
         return sum([condor(underlying_value) for condor in self.condors])

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 from abc import ABC, abstractmethod
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,6 +14,7 @@ class Option(ABC):
     def plot(self, range: (float, float), n_points: int = 1000, fig: Optional[plt.Figure] = None,
              save_as: Optional[str] = None, fmt: str = '-', alpha: float = 1,
              linewidth: float = 1, label: str = '') -> None:
+        
         xx = np.linspace(range[0], range[1], n_points)
         yy = np.array([self(x) for x in xx])
 

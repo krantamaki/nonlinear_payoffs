@@ -25,14 +25,14 @@ def main():
     fig.savefig("option_tmp.pdf")
 
 
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(10, 5))
 
     alpha = 0.3
     fmt = '--'
 
     _lambda = 2 * np.pi
     _alpha = np.pi / 2
-    eval_range = (-4 * np.pi, 4 * np.pi)
+    eval_range = (-2 * np.pi, 2 * np.pi)
 
     n = 100
     condor_chains = []
