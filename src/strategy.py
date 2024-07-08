@@ -35,6 +35,33 @@ class Strategy(ABC):
             fig.savefig(save_as)
 
 
+class Butterfly(Strategy):
+    """
+    The butterfly option trading strategy consisting of four options (either all
+    calls or all puts, this implementation uses calls) on the same underlying and
+    with the same expiry date, but differing strikes. The options with outer strikes
+    are bought and inner strikes sold. The strikes of the inner options are equal.
+    """
+
+    def __init__(self, inner_strike: float, spread: float,
+                 position_size: float) -> None:
+
+        self.__inner = inner_strike
+        self.__spread = spread
+        self.__pos_size = position_size
+
+        self.__options = [CallOption(self.__inner - self.__spread, "long", self.__pos_size),
+                          CallOption(self.__inner, "short", self.__pos_size),
+                          CallOption(self.__inner, "short", self.__pos_size),
+                          CallOption(self.__inner + self.__spread, "long", self.__pos_size)]
+
+    def __call__(self, underlying_value: float) -> float:
+        return sum([option(underlying_value) for option in self.__options])
+
+    def options(self) -> list[Option]:
+        return copy(self.__options)
+
+
 class Condor(Strategy):
     """
     The condor option trading strategy consisting of four options (either all
@@ -96,3 +123,26 @@ class StrategyCollection(Strategy):
 
     def options(self):
         return sum([strategy.options() for strategy in self.__strategies], [])
+
+
+class SineApproximation(Strategy):
+
+    def __init__(self, _lambda: float, _alpha: float, n: int, eval_range: (float, float), magnitude: float = 1) -> None:
+
+        condor_chains = []
+        mag_sum = 0
+        magnitude = magnitude
+
+        for i in range(1, n + 1):
+            diff = (i * _lambda) / (2 * n)
+            mag = np.sin(diff / 2) * i / n
+            mag_sum += mag
+            condor_chains.append(CondorChain(_lambda, _alpha, diff, (1 / diff) * mag, eval_range))
+
+        self.__strategy = StrategyCollection(condor_chains, magnitude / mag_sum)
+
+    def __call__(self, underlying_value: float) -> float:
+        return self.__strategy(underlying_value)
+
+    def options(self):
+        return self.__strategy.options()
