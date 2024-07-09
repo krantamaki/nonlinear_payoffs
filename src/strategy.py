@@ -124,6 +124,12 @@ class StrategyCollection(Strategy):
     def options(self):
         return sum([strategy.options() for strategy in self.__strategies], [])
 
+    def plot_strategies(self, range: (float, float), n_points: int = 1000, fig: Optional[plt.Figure] = None,
+                        save_as: Optional[str] = None, fmt: str = '-', alpha: float = 1, linewidth: float = 1) -> None:
+
+        for strategy in self.__strategies:
+            strategy.plot(range, n_points=n_points, fig=fig, save_as=save_as, fmt=fmt, alpha=alpha, linewidth=linewidth)
+
 
 class SineApproximation(Strategy):
 
@@ -146,3 +152,8 @@ class SineApproximation(Strategy):
 
     def options(self):
         return self.__strategy.options()
+
+    def plot_condors(self, range: (float, float), n_points: int = 1000, fig: Optional[plt.Figure] = None,
+                     save_as: Optional[str] = None, fmt: str = '-', alpha: float = 1, linewidth: float = 1) -> None:
+
+        self.__strategy.plot_strategies(range, n_points=n_points, fig=fig, save_as=save_as, fmt=fmt, alpha=alpha, linewidth=linewidth)
