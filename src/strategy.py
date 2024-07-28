@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from copy import copy
+from math import ceil
 import matplotlib.pyplot as plt
 import numpy as np
 from option import CallOption, PutOption, Option
@@ -99,8 +100,8 @@ class CondorChain(Strategy):
         inner_diff = _lambda / 2 - _delta
         shift = inner_diff / 2 + _delta
 
-        i_range = [-i for i in range(1, int((_alpha - eval_range[0]) / _lambda) + 1)] + \
-                  [i for i in range(int((eval_range[1] - _alpha) / _lambda) + 1)]
+        i_range = [-i for i in range(1, ceil((_alpha - eval_range[0]) / _lambda) + 1)] + \
+                  [i for i in range(ceil((eval_range[1] - _alpha) / _lambda) + 1)]
 
         self.condors = [Condor(_alpha - shift + i * _lambda, _delta, _alpha + shift + i * _lambda, position_size) for i in i_range]
 
@@ -141,7 +142,7 @@ class SineApproximation(Strategy):
 
         for i in range(1, n + 1):
             diff = (i * _lambda) / (2 * n)
-            mag = np.sin(diff / 2) * i / n
+            mag = np.sin(np.pi / 2 * i / n) * i / n
             mag_sum += mag
             condor_chains.append(CondorChain(_lambda, _alpha, diff, (1 / diff) * mag, eval_range))
 

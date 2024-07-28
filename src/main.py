@@ -48,10 +48,10 @@ def condor_chain_visualisation():
 
     fig = plt.figure(figsize=figsize)
 
-    condor_chain_1 = CondorChain(2 * np.pi, np.pi / 2, 1, 1, (-3 * np.pi, 3 * np.pi))
-    condor_chain_1.plot((-2 * np.pi, 2 * np.pi), fig=fig, linewidth=lw, label=r"Condor chain ($\lambda = 2 \pi$, $\alpha = \pi / 2$, $\delta = 1$)")
-    condor_chain_2 = CondorChain(2 * np.pi, np.pi / 2, 0.25, 1 / 0.25, (-3 * np.pi, 3 * np.pi))
-    condor_chain_2.plot((-2 * np.pi, 2 * np.pi), fmt="--", fig=fig, linewidth=lw, label=r"Condor chain ($\lambda = 2 \pi$, $\alpha = \pi / 2$, $\delta = 0.25$)")
+    condor_chain_1 = CondorChain(2 * np.pi, np.pi / 2, 1.5, 1/1.5, (-3 * np.pi, 3 * np.pi))
+    condor_chain_1.plot((-2 * np.pi, 2 * np.pi), fig=fig, linewidth=lw, label=r"Condor chain ($\lambda = 2 \pi$, $\varphi = \pi / 2$, $\delta = 1.5$)")
+    condor_chain_2 = CondorChain(2 * np.pi, np.pi / 2, 1, 1, (-3 * np.pi, 3 * np.pi))
+    condor_chain_2.plot((-2 * np.pi, 2 * np.pi), fmt="--", fig=fig, linewidth=lw, label=r"Condor chain ($\lambda = 2 \pi$, $\varphi = \pi / 2$, $\delta = 1$)")
 
     plt.xlabel("$S$")
     plt.ylabel("Payoff")
@@ -139,4 +139,4 @@ if __name__ == "__main__":
     condor_chain_visualisation()
     sine_approx_visualisation()
     sine_formulation_visualisation()
-    sine_num_analysis_visualisation()  # This might take a while
+    # sine_num_analysis_visualisation()  # This might take a while
