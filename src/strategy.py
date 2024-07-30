@@ -94,16 +94,16 @@ class Condor(Strategy):
 
 class CondorChain(Strategy):
 
-    def __init__(self, _lambda: float, _alpha: float, _delta: float,
+    def __init__(self, _lambda: float, _phi: float, _delta: float,
                  position_size: float, eval_range: (float, float)) -> None:
 
         inner_diff = _lambda / 2 - _delta
         shift = inner_diff / 2 + _delta
 
-        i_range = [-i for i in range(1, ceil((_alpha - eval_range[0]) / _lambda) + 1)] + \
-                  [i for i in range(ceil((eval_range[1] - _alpha) / _lambda) + 1)]
+        i_range = [-i for i in range(1, ceil((_phi - eval_range[0]) / _lambda) + 1)] + \
+                  [i for i in range(ceil((eval_range[1] - _phi) / _lambda) + 1)]
 
-        self.condors = [Condor(_alpha - shift + i * _lambda, _delta, _alpha + shift + i * _lambda, position_size) for i in i_range]
+        self.condors = [Condor(_phi - shift + i * _lambda, _delta, _phi + shift + i * _lambda, position_size) for i in i_range]
 
     def __call__(self, underlying_value: float) -> float:
         return sum([condor(underlying_value) for condor in self.condors])
@@ -134,7 +134,7 @@ class StrategyCollection(Strategy):
 
 class SineApproximation(Strategy):
 
-    def __init__(self, _lambda: float, _alpha: float, n: int, eval_range: (float, float), magnitude: float = 1) -> None:
+    def __init__(self, _lambda: float, _phi: float, n: int, eval_range: (float, float), magnitude: float = 1) -> None:
 
         condor_chains = []
         mag_sum = 0
@@ -144,7 +144,7 @@ class SineApproximation(Strategy):
             diff = (i * _lambda) / (2 * n)
             mag = np.sin(np.pi / 2 * i / n) * i / n
             mag_sum += mag
-            condor_chains.append(CondorChain(_lambda, _alpha, diff, (1 / diff) * mag, eval_range))
+            condor_chains.append(CondorChain(_lambda, _phi, diff, (1 / diff) * mag, eval_range))
 
         self.__strategy = StrategyCollection(condor_chains, magnitude / mag_sum)
 
