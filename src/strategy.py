@@ -158,3 +158,37 @@ class SineApproximation(Strategy):
                      save_as: Optional[str] = None, fmt: str = '-', alpha: float = 1, linewidth: float = 1) -> None:
 
         self.__strategy.plot_strategies(range, n_points=n_points, fig=fig, save_as=save_as, fmt=fmt, alpha=alpha, linewidth=linewidth)
+
+
+class ElementaryClaim(Strategy):
+
+    def __init__(self, step_size: float, value: float, eval_range: (float, float), magnitude: float = 1) -> None:
+
+        self.__magnitude = magnitude
+        self.__options = [CallOption(value - step_size, "long", 1 / step_size),
+                          CallOption(value, "short", 1 / step_size),
+                          CallOption(value, "short", 1 / step_size),
+                          CallOption(value + step_size, "long", 1 / step_size)]
+
+    def __call__(self, underlying_value: float) -> float:
+        return self.__magnitude * sum([option(underlying_value) for option in self.__options])
+
+    def options(self) -> list[Option]:
+        return copy(self.__options)
+
+
+class FuncApproximation(Strategy):
+
+    def __init__(self, func: callable, n: int, eval_range: (float, float)) -> None:
+
+        self.__step_size = (eval_range[1] - eval_range[0]) / n
+        self.__elementary_claims = [ElementaryClaim(self.__step_size, x, eval_range, magnitude = func(x)) for x in np.linspace(eval_range[0], eval_range[1], n)]
+
+        self.__strategy = StrategyCollection(self.__elementary_claims)
+
+    def __call__(self, underlying_value: float) -> float:
+        return self.__strategy(underlying_value)
+
+    def options(self):
+        return self.__strategy.options()
+

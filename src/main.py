@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from option import CallOption, PutOption
-from strategy import Butterfly, Condor, CondorChain, StrategyCollection, SineApproximation
+from strategy import Butterfly, Condor, CondorChain, StrategyCollection, SineApproximation, FuncApproximation
 
 
 lw = 1.5
@@ -133,10 +133,34 @@ def sine_num_analysis_visualisation():
     fig.savefig("figures/numerical_analysis_visualisation.pdf")
 
 
+def func_approx_visualisation():
+
+    def func(x):
+        return x ** 2
+
+    fig = plt.figure(figsize=figsize)
+
+    func_n10 = FuncApproximation(func, 100, (-2, 2))
+    func_n10.plot((-2, 2), fig=fig, linewidth=lw, label=r"Func approximation ($n = 100$)")
+
+    # sine_n10.plot_condors((-2 * np.pi, 2 * np.pi), fig=fig, alpha=0.3, linewidth=lw)
+
+    xx = np.linspace(-2, 2, 1000)
+    yy_quad = xx ** 2
+    plt.plot(xx, yy_quad, '--', label="Func exact")
+
+    plt.xlabel("$S$")
+    plt.ylabel("Payoff")
+    plt.tight_layout()
+    plt.legend()
+    fig.savefig("figures/func_form_visualisation.pdf")
+
+
 if __name__ == "__main__":
-    option_visualisation()
-    strategy_visualisation()
-    condor_chain_visualisation()
-    sine_approx_visualisation()
-    sine_formulation_visualisation()
+    # option_visualisation()
+    # strategy_visualisation()
+    # condor_chain_visualisation()
+    # sine_approx_visualisation()
+    # sine_formulation_visualisation()
     # sine_num_analysis_visualisation()  # This might take a while
+    func_approx_visualisation()
